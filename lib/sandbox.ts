@@ -21,6 +21,8 @@ const MAX_OUTPUT = 20_000;
 const MODE = process.env.KESTREL_SANDBOX === "docker" ? "docker" : "local";
 const IMAGE = process.env.KESTREL_SANDBOX_IMAGE || "python:3.12-slim";
 const NETWORK = process.env.KESTREL_SANDBOX_NETWORK || "bridge";
+// Optional: run local-mode code as an unprivileged user (set in the Dockerfile).
+const RUN_UID = process.env.KESTREL_SANDBOX_UID ? Number(process.env.KESTREL_SANDBOX_UID) : undefined;
 
 function clip(s: string) {
   return s.length > MAX_OUTPUT ? s.slice(0, MAX_OUTPUT) + `\n…[truncated ${s.length - MAX_OUTPUT} chars]` : s;
@@ -35,8 +37,13 @@ export async function runCode(
 ): Promise<RunResult> {
   const scratch = path.join(workspace, ".kestrel");
   await fs.mkdir(scratch, { recursive: true });
+  if (RUN_UID !== undefined) {
+    await fs.chown(workspace, RUN_UID, RUN_UID).catch(() => {});
+    await fs.chown(scratch, RUN_UID, RUN_UID).catch(() => {});
+  }
   const file = language === "python" ? "run.py" : "run.sh";
   await fs.writeFile(path.join(scratch, file), code, "utf8");
+  if (RUN_UID !== undefined) await fs.chown(path.join(scratch, file), RUN_UID, RUN_UID).catch(() => {});
 
   let cmd: string;
   let args: string[];
@@ -62,6 +69,7 @@ export async function runCode(
       env: { PATH: process.env.PATH ?? "", HOME: workspace, LANG: "C.UTF-8", MPLBACKEND: "Agg" } as unknown as NodeJS.ProcessEnv,
       stdio: ["ignore", "pipe", "pipe"],
       detached: MODE === "local",
+      ...(MODE === "local" && RUN_UID !== undefined ? { uid: RUN_UID, gid: RUN_UID } : {}),
     });
     let stdout = "";
     let stderr = "";

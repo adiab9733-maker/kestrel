@@ -46,7 +46,9 @@ code, pre, textarea.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas
 
 .topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--surface);
+  padding: 12px max(20px, env(safe-area-inset-right)) 12px max(20px, env(safe-area-inset-left));
+  padding-top: max(12px, env(safe-area-inset-top));
+  border-bottom: 1px solid var(--border); background: var(--surface);
   position: sticky; top: 0; z-index: 5;
 }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; letter-spacing: -0.01em; text-decoration: none; font-size: 17px; }
@@ -94,7 +96,7 @@ code, pre, textarea.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas
 @keyframes pulse { 50% { opacity: 0.3; } }
 
 /* Task view */
-.task { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; height: calc(100vh - 57px); }
+.task { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; height: calc(100vh - 57px); height: calc(100dvh - 57px - env(safe-area-inset-top)); }
 .task-main { overflow-y: auto; padding: 24px 28px 64px; border-right: 1px solid var(--border); }
 .task-side { overflow-y: auto; padding: 24px 24px 48px; background: var(--surface-2); }
 .task-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
@@ -151,10 +153,30 @@ code, pre, textarea.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas
 .files .size { color: var(--muted); font-size: 12px; white-space: nowrap; }
 .preview-img { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); background: #fff; }
 
-@media (max-width: 860px) {
+/* Touch: comfortable tap targets, no hover-only affordances, no tap flash. */
+@media (pointer: coarse) {
+  body { -webkit-tap-highlight-color: transparent; }
+  .ev-tool { min-height: 52px; padding: 10px 14px; }
+  .chip { padding: 10px 14px; font-size: 14px; }
+  .btn { padding: 12px 20px; }
+  .files li { padding: 10px 0; }
+  .topbar nav a { padding: 8px 4px; }
+  .composer textarea { font-size: 17px; }
+  .kbd-hint { display: none; }
+}
+
+/* Tablet: keep the two-pane layout, give the activity feed more room. */
+@media (max-width: 1180px) and (min-width: 700px) {
+  .task { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .task-main { padding: 20px 20px 48px; }
+  .task-side { padding: 20px 16px 48px; }
+  .term { max-height: 40vh; }
+}
+
+@media (max-width: 699px) {
   .task { display: block; height: auto; }
   .task-main { border-right: 0; padding: 20px 16px 24px; overflow: visible; }
-  .task-side { padding: 20px 16px 48px; overflow: visible; }
+  .task-side { padding: 20px 16px calc(48px + env(safe-area-inset-bottom)); overflow: visible; }
   .home { padding-top: 40px; }
   .home h1 { font-size: 28px; }
 }

@@ -14,6 +14,15 @@ npm run dev                   # http://localhost:3000
 
 Requires Node 20+ and Python 3 on the machine (for the `local` sandbox), or Docker (for `KESTREL_SANDBOX=docker`).
 
+## Use it from a tablet or phone (host it on Railway)
+
+1. Push this code to a GitHub repository.
+2. On railway.app: **New Project → Deploy from GitHub repo**, pick the repo. Railway builds the included `Dockerfile`.
+3. In the service's **Variables**, add `ANTHROPIC_API_KEY` and `KESTREL_PASSWORD` (anything you like).
+4. Optional but recommended: add a **Volume** mounted at `/data` so task history survives redeploys.
+5. Under **Settings → Networking**, click **Generate Domain** and open that link on your tablet.
+6. In Safari: Share → **Add to Home Screen** (Chrome: menu → **Install app**). Kestrel then opens full screen like a normal app.
+
 ## How it works
 
 | Piece | File |

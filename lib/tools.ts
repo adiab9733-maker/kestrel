@@ -167,6 +167,8 @@ export async function executeClientTool(name: ClientToolName, rawInput: unknown,
         const target = await safeResolve(ctx.workspace, rel);
         await fs.mkdir(path.dirname(target), { recursive: true });
         await fs.writeFile(target, content, "utf8");
+        const uid = process.env.KESTREL_SANDBOX_UID ? Number(process.env.KESTREL_SANDBOX_UID) : undefined;
+        if (uid !== undefined) await fs.chown(target, uid, uid).catch(() => {}); // keep it editable by sandboxed code
         return { ok: true, content: `Wrote ${content.length} characters to ${rel}.` };
       }
       case "read_file": {

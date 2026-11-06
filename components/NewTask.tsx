@@ -47,7 +47,7 @@ export function NewTask() {
           aria-label="Task"
         />
         <div className="composer-row">
-          <span className="hint">{error ? <span style={{ color: "var(--err)" }}>{error}</span> : "⌘/Ctrl + Enter to start"}</span>
+          <span className="hint">{error ? <span style={{ color: "var(--err)" }}>{error}</span> : <span className="kbd-hint">⌘/Ctrl + Enter to start</span>}</span>
           <button className="btn" onClick={submit} disabled={busy || !prompt.trim()}>
             {busy ? "Starting…" : "Start task"}
           </button>
